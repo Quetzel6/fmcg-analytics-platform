@@ -43,6 +43,10 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m fmcg.receipt_scenario
+      - name: Validate authored Q4 SI planning ledger
+        env:
+          PYTHONPATH: src
+        run: python -m fmcg.q4_plan
       - name: Retain logs and reports even on failure
         if: always()
         uses: actions/upload-artifact@v4
