@@ -1,0 +1,7 @@
+# Fixed before M5 validation. No parameters tuned against evaluation labels.
+[risk]
+lookback_days = 28
+horizon_days = 7
+excess_cover_days = 60
+heldout_start = "2026-01-01"
+method = "weekday_uncensored_cover"
