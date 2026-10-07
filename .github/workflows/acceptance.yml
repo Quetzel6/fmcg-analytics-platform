@@ -35,6 +35,10 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Rebuild and require database acceptance
         run: python scripts/run_release.py
+      - name: Validate supplemental staggered promotion benchmark
+        env:
+          PYTHONPATH: src
+        run: python -m fmcg.promotion_scenario
       - name: Retain logs and reports even on failure
         if: always()
         uses: actions/upload-artifact@v4
