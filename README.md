@@ -176,7 +176,7 @@ python3 scripts/accept_postgres.py
 
 This creates a run-owned disposable PostgreSQL container on a random localhost port, requires both integration tests to pass without skips, retains real load/reconciliation evidence and cleans up the temporary container. It does not use your existing database or Compose volume. See `docs/POSTGRES_ACCEPTANCE.md`. The bundled attempt is blocked because this environment has no Docker; DB acceptance remains pending. Eight offline orchestration tests passed separately; their mocks are not PostgreSQL verification.
 
-For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`. No site or GitHub publication has been performed.
+For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`.
 
 ## Rebuild and CI
 
@@ -184,4 +184,17 @@ For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`.
 python3 scripts/run_release.py --local
 ```
 
-One command regenerates the synthetic scenario, strict DQ, M2–M5 reports/Dashboards, Demo and complete tests. Local success retains the explicit database-pending status. `.github/workflows/acceptance.yml` supplies a disposable PostgreSQL service and requires zero skipped core tests before database certification. The workflow is prepared and locally parsed; no GitHub run or upload is claimed. See `docs/CI_RELEASE.md`.
+One command regenerates the synthetic scenario, strict DQ, M2–M5 reports/Dashboards, Demo and complete tests. Local success retains the explicit database-pending status. `.github/workflows/acceptance.yml` supplies a disposable PostgreSQL service and requires zero skipped core tests before database certification. Acceptance CI for the Q4 ledger in PR #5 passed on GitHub. See `docs/CI_RELEASE.md`.
+
+## Supplemental Q4 commercial review
+
+The authored Q4 plan is available on the feature branch. PR #5 acceptance CI passed, including the default PostgreSQL release. The older bundled Docker attempt described above is historical evidence, not the current CI result.
+
+```bash
+python -u scripts/run_release.py --local
+export PYTHONPATH="$PWD/src"
+python -m fmcg.q4_plan
+open output/scenarios/q4-plan-v1/cockpit.html
+```
+
+Choose scenario, retailer and category to review monthly SI and incremental order dates/quantities. The annual target bridge follows scenario and retailer; no monthly or category targets are invented. Orders and receipts are authored assumptions. See [Q4 ledger assumptions](docs/Q4_PLAN_V1.md) and [commercial review workflow](docs/Q4_COMMERCIAL_REVIEW.md). Outputs include `cockpit.html` and `actions.csv`, with the original ledger evidence retained.
