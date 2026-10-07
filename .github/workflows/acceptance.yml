@@ -39,6 +39,10 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m fmcg.promotion_scenario
+      - name: Validate reserved receipt-risk benchmark
+        env:
+          PYTHONPATH: src
+        run: python -m fmcg.receipt_scenario
       - name: Retain logs and reports even on failure
         if: always()
         uses: actions/upload-artifact@v4
