@@ -5,6 +5,7 @@ from html import escape
 from .generate import ROOT, sha256
 from .validate import validate
 from .planning.bridge import build, load_plan
+from .planning.cockpit import render as render_cockpit
 from .promotion_report import encode, write_csv
 
 
@@ -26,7 +27,7 @@ def render(result, output):
 <title>Q4 incremental SI plan</title><style>body{font:16px system-ui;max-width:1100px;margin:32px auto;padding:0 20px;color:#173045}
 table{width:100%;border-collapse:collapse}td,th{padding:10px;border-bottom:1px solid #ddd;text-align:left}.wrap{overflow-x:auto}</style>
 <h1>Q4 incremental Sale-In plan</h1><p>100% synthetic · Authored planning assumptions · As-of 2026-09-30</p>
-<p><a href="../../index.html">Default demo</a> · <a href="../../m3/dashboard.html">Unchanged M3 outlook</a> · <a href="planning.json">Full assumptions and outputs</a></p>
+<p><a href="cockpit.html">Monthly and order review</a> · <a href="../../index.html">Default demo</a> · <a href="../../m3/dashboard.html">Unchanged M3 outlook</a> · <a href="planning.json">Full assumptions and outputs</a></p>
 <p>Historical B1 effects are transferred with an assumed 25% incremental share beyond the existing baseline.
 This share is not an estimated causal correction. Scenarios are assumptions, not confidence intervals.</p>
 <h2>Annual target gap (THB)</h2><div class="wrap"><table><thead><tr><th>Scenario</th><th>Retailer</th><th>Baseline gap</th>
@@ -59,6 +60,7 @@ def run():
                           if isinstance(v,Fraction)} for row in result[name]]
         (output/"rational_exact.json").write_text(json.dumps(exact,indent=2)+"\n")
         render(result,output)
+        write_csv(output/"actions.csv",render_cockpit(result,output))
         summary=dict(status="passed",scenario="q4-plan-v1",source_manifest_sha256=sha256(data/"manifest.json"),
                      plan_sha256=sha256(plan_path),outlook=result["outlook"])
         status.write_text(json.dumps(encode(summary),indent=2)+"\n")
