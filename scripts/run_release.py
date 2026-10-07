@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from urllib.parse import urlparse
+from doctor import check_environment
 ROOT=Path(__file__).resolve().parents[1]
 
 def stages(database):
@@ -22,7 +23,7 @@ def certification(summary,require_database):
     if require_database and summary['skipped']:raise ValueError('Database release cannot contain skipped tests')
     return 'passed' if require_database else 'passed_local_database_pending'
 
-def execute(local=False,run=subprocess.run,root=ROOT):
+def execute(local=False,run=subprocess.run,root=ROOT,check=check_environment):
     output=root/'output';output.mkdir(parents=True,exist_ok=True)
     result=dict(status='running',database_verified=False,started_utc=dt.datetime.now(dt.timezone.utc).isoformat(),stages=[])
     environment=dict(os.environ,PYTHONPATH=str(root/'src'))
@@ -34,6 +35,12 @@ def execute(local=False,run=subprocess.run,root=ROOT):
         result.update(status='blocked',reason='FMCG_TEST_DATABASE_URL must identify a dedicated disposable database')
         (output/'release_status.json').write_text(json.dumps(result,indent=2)+'\n');return result
     else:environment['DATABASE_URL']=url
+    preflight=check(root)
+    result['environment']=preflight
+    if preflight['status']!='ready':
+        result.update(status='blocked',reason=preflight['reason'],finished_utc=dt.datetime.now(dt.timezone.utc).isoformat())
+        (output/'release_status.json').write_text(json.dumps(result,indent=2)+'\n')
+        return result
     try:
         for name,arguments in stages(not local):
             print('Running release stage: '+name,flush=True)
