@@ -16,7 +16,7 @@ Implemented locally: C01–C10 and S01–S07. The as-of date comes from the data
 | Historical cutoff | Later delivered amounts excluded; future deliveries appear open at earlier cutoffs |
 | Export | Exact rational evidence retained; embedded script escaped |
 | Dashboard | Actual JavaScript executed with a DOM harness; tables, SVG chart and all three filters verified |
-| PostgreSQL parity | Optional test compares all four SQL views to local outputs; not executed without isolated database |
+| PostgreSQL parity | Real integration test passed in GitHub Actions; compares all four SQL views to local outputs |
 
 Calculation input is only `data/warehouse/` plus period metadata in manifest. Validation is orchestrated separately before export. No private validation dataset is read by the analytics package or SQL views.
 
@@ -24,6 +24,6 @@ Calculation input is only `data/warehouse/` plus period metadata in manifest. Va
 
 Dashboard filters: category narrows commercial charts and tables but does not change contribution/rank partitions; service remains retailer-level; SO bridge stays SO even if the commercial toggle is SI. All boundaries are labelled in the page. Browser arithmetic is presentation only; exported money sums and business calculations are authoritative.
 
-M2 is verified locally. PostgreSQL SQL execution, full database parity and runtime rollback remain pending because this environment has no PostgreSQL server. M3 forecast/outlook, M4 uplift and M5 availability/risk are not presented as completed.
+M2 SQL execution and local parity passed on PostgreSQL 16 in the complete GitHub acceptance run. The separate M1 test verified repeated loading and injected rollback. M3–M5 are implemented with their own acceptance documents and unchanged synthetic-model limitations. See RELEASE_EVIDENCE.md.
 
-Release result: 36 test cases, 34 passed, 2 skipped (PostgreSQL only). A singular-test summary parsing issue in the runner was corrected; audit notes identify unchanged test/production source and completed logs used for collection.
+Historical M0–M2 local result: 36 test cases, 34 passed, 2 skipped (PostgreSQL only). The current complete M0–M5 CI result is 76 passed, zero skipped. A singular-test summary parsing issue in the runner was corrected; audit notes identify unchanged test/production source and completed logs used for collection.

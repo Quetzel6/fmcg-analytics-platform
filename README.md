@@ -1,6 +1,19 @@
 # FMCG Commercial & Supply Chain Analytics Platform
 
-M0–M5 local implementation, PostgreSQL integration acceptance pending based on the supplied `DATA_SPEC.md` and `KPI_DICTIONARY.md`, with review corrections in `docs/REVIEW_NOTES.md`.
+## Integrated candidate quick start
+
+This candidate combines the Mac environment check, default M0–M5 pipeline and supplemental promotion, receipt-risk and Q4 review. From the source root in the working environment:
+
+```bash
+source .venv-py313/bin/activate
+python scripts/doctor.py
+python -u scripts/run_candidate.py --local
+open output/release_candidate.html
+```
+
+Local mode leaves database verification pending. CI uses the same candidate command with a disposable PostgreSQL service and requires default database acceptance. This branch needs its own CI result; previous accepted heads are recorded in [candidate scope and evidence](docs/RELEASE_CANDIDATE.md). Main and earlier PRs are unchanged until integration.
+
+M0–M5 synthetic analytics platform with verified PostgreSQL integration. [GitHub Actions acceptance](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/37572311549) passed **76 core tests with zero skips** on 2026-10-07. See [release evidence](docs/RELEASE_EVIDENCE.md) for the verified commit and scope, and `docs/REVIEW_NOTES.md` for specification corrections.
 
 **100% synthetic, config-authored scenario.** No real company, retailer, brand, transaction or company price file is used. As-of **2026-09-30**. This project validates engineering/analysis methods on simulated data; its figures are not business findings.
 
@@ -23,7 +36,7 @@ python3 -m fmcg.validate --strict-sanity
 python3 tests/run_all.py
 ```
 
-Generation and local validation need NumPy; PostgreSQL loading additionally uses psycopg. NumPy is pinned to 2.3.5; using another version fails config validation rather than silently changing random-stream checksums. Tests and generation were run in this execution environment, not on the user's Mac. No Docker is needed for local generation/QA.
+Generation and local validation need NumPy; PostgreSQL loading additionally uses psycopg. NumPy is pinned to 2.3.5; using another version fails config validation rather than silently changing random-stream checksums. The complete rebuild has passed on GitHub Actions; the project owner also reported a successful local Mac rebuild and dedicated PostgreSQL acceptance. No Docker is needed for local generation/QA.
 
 `generate` replaces authored files in the chosen output folder; `data/` is a disposable generated scenario. Do not put original business files there. Change the seed/parameters in `config/scenario.toml` and regenerate to create a different scenario.
 
@@ -76,7 +89,7 @@ export FMCG_TEST_DATABASE_URL="$DATABASE_URL"
 python3 tests/run_all.py
 ```
 
-The integration test runs a repeated load and injects a failure after insertions to test rollback. Without the database URL it is explicitly skipped. This environment has no PostgreSQL/Docker server, so database integration has not been executed. M1 cannot be marked fully accepted until this test passes.
+The integration test runs a repeated load and injects a failure after insertions to test rollback. Without the database URL it is explicitly skipped. Both PostgreSQL integration tests passed in the verified GitHub Actions run, including repeated loading, injected rollback and M2 SQL/local parity. See `docs/RELEASE_EVIDENCE.md`. A new local run without the test URL still skips these tests.
 
 ## Architecture and next work
 
@@ -84,19 +97,19 @@ The integration test runs a repeated load and injects a failure after insertions
 
 Source: `src/fmcg/generate.py`, `validate.py`, `load.py`, `contracts.py`; schema: `sql/schema.sql`; tests: `tests/test_m1.py`. Original user drafts are preserved under `docs/source_specs/`; reviewed working copies and decisions live in `docs/`.
 
-M2 now exports commercial/service KPIs and a new offline dashboard. PostgreSQL views are included but require the integration acceptance test before SQL parity can be claimed. M3 now evaluates seasonal naive and alternative baselines at **2025-09-30 → Q4 2025** and **2026-06-30 → Q3 2026**, each 36 customer-category-month points, and produces Q4 2026 SI forecasts and full-year outlook. M4 now exports observed promotion estimators with isolated planted-effect validation; M5 now exports fixed inventory/risk rules and validation. See `docs/IMPLEMENTATION_STATUS.md`.
+M2 now exports commercial/service KPIs and a new offline dashboard. PostgreSQL views and their local-output parity passed the integration acceptance suite for the verified commit. M3 now evaluates seasonal naive and alternative baselines at **2025-09-30 → Q4 2025** and **2026-06-30 → Q3 2026**, each 36 customer-category-month points, and produces Q4 2026 SI forecasts and full-year outlook. M4 now exports observed promotion estimators with isolated planted-effect validation; M5 now exports fixed inventory/risk rules and validation. See `docs/IMPLEMENTATION_STATUS.md`.
 
 No RFM, ROI, margin, upstream container scheduling, real-data forecasting accuracy claim or production-scale claim is included.
 
 ## Git
 
 ```bash
-git init
-git add .gitignore README.md requirements.txt compose.yaml .env.example config src sql tests docs dashboard scripts .github
-git commit -m "Build synthetic FMCG M0-M5 analytics and acceptance pipeline"
+git clone https://github.com/Quetzel6/fmcg-analytics-platform.git
+cd fmcg-analytics-platform
+# Existing checkout: use git pull --ff-only after committing or stashing local work.
 ```
 
-Generated data/output and `.env` are excluded. No GitHub repository or upload has been performed.
+Generated data/output and `.env` are excluded. The private GitHub repository is active. Pushes and pull requests run the acceptance workflow.
 
 ## M2 reports and Dashboard
 
@@ -114,7 +127,7 @@ C01–C10 and S01–S07 are calculated locally from warehouse facts only. CSVs i
 
 The Dashboard has Customer, SI/SO and Category filters, monthly LY/TY lines, SKU bars/table, category SI target attainment, due-cohort service and an SO price/volume bridge. Contribution/rank retain the customer/type denominator after a category filter; service uses the retailer cohort and is unaffected by category/type filters.
 
-`sql/m2_views.sql` creates `v_m2_monthly`, `v_m2_sku_ytd`, `v_m2_category_ytd` and `v_m2_service` during `fmcg.load`. Their cutoff is the loaded observed date dimension maximum. Local quarter comparisons are exported to CSV; the SQL monthly view is the input for equivalent quarter aggregations. PostgreSQL view parity has an optional database test and remains unverified here.
+`sql/m2_views.sql` creates `v_m2_monthly`, `v_m2_sku_ytd`, `v_m2_category_ytd` and `v_m2_service` during `fmcg.load`. Their cutoff is the loaded observed date dimension maximum. Local quarter comparisons are exported to CSV; the SQL monthly view is the input for equivalent quarter aggregations. PostgreSQL view parity passed in the verified CI run; the test remains optional in local mode.
 
 See `output/all_test_results.txt` for the combined M1/M2 test run and `docs/M2_ACCEPTANCE.md` for coverage and remaining limitations.
 
@@ -158,7 +171,7 @@ S08–S11 report 28-day days of cover, observed closing-zero availability and co
 
 Held-out 2026 matched precision is **6.24%**, recall **92.30%**, PR-AUC **0.2341**. Alerts are broad screening flags; upcoming receipts are not modelled, and the small difference versus naive is not a strong detector claim. Lost units are estimates with explicit matched coverage and monthly error, not guaranteed recovered sales.
 
-The daily risk CSV contains the full 150,600-day panel; Dashboard JSON contains compact summaries and the latest 150 store-SKUs. Four Dashboard filters cover retailer/category/status/month. Latest snapshot stays at as-of, and validation stays on its fixed cohort. `docs/NEXT_STEPS.md` records outstanding PostgreSQL acceptance and portfolio review work. M3's SI outlook remains unchanged.
+The daily risk CSV contains the full 150,600-day panel; Dashboard JSON contains compact summaries and the latest 150 store-SKUs. Four Dashboard filters cover retailer/category/status/month. Latest snapshot stays at as-of, and validation stays on its fixed cohort. `docs/NEXT_STEPS.md` records portfolio review and modelling extensions after database acceptance. M3's SI outlook remains unchanged.
 
 ## Open the combined demo and close DB acceptance
 
@@ -174,9 +187,9 @@ With the virtual environment active, requirements installed and Docker Desktop r
 python3 scripts/accept_postgres.py
 ```
 
-This creates a run-owned disposable PostgreSQL container on a random localhost port, requires both integration tests to pass without skips, retains real load/reconciliation evidence and cleans up the temporary container. It does not use your existing database or Compose volume. See `docs/POSTGRES_ACCEPTANCE.md`. The bundled attempt is blocked because this environment has no Docker; DB acceptance remains pending. Eight offline orchestration tests passed separately; their mocks are not PostgreSQL verification.
+This creates a run-owned disposable PostgreSQL container on a random localhost port, requires both integration tests to pass without skips, retains real load/reconciliation evidence and cleans up the temporary container. It does not use your existing database or Compose volume. See `docs/POSTGRES_ACCEPTANCE.md`. The dedicated Mac acceptance passed according to the owner's result, and the complete GitHub CI run independently verified database acceptance. Offline helper tests check orchestration; their mocks are not PostgreSQL verification.
 
-For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`.
+For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`. The source is hosted in the private GitHub repository; the offline demo is not a hosted website.
 
 ## Rebuild and CI
 
@@ -184,7 +197,7 @@ For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`.
 python3 scripts/run_release.py --local
 ```
 
-One command regenerates the synthetic scenario, strict DQ, M2–M5 reports/Dashboards, Demo and complete tests. Local success retains the explicit database-pending status. `.github/workflows/acceptance.yml` supplies a disposable PostgreSQL service and requires zero skipped core tests before database certification. Acceptance CI for the Q4 ledger in PR #5 passed on GitHub. See `docs/CI_RELEASE.md`.
+One command regenerates the synthetic scenario, strict DQ, M2–M5 reports/Dashboards, Demo and complete tests. Local success retains the explicit database-pending status. `.github/workflows/acceptance.yml` supplies a disposable PostgreSQL service and requires zero skipped core tests before database certification. The workflow passed on GitHub for the commit recorded in `docs/RELEASE_EVIDENCE.md`. See `docs/CI_RELEASE.md`.
 
 ## Supplemental Q4 commercial review
 

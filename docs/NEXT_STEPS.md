@@ -1,14 +1,9 @@
-# Next steps after local M0–M5
+# Current next steps
 
-M0–M5 local methods are implemented with synthetic validation. Remaining acceptance work should be explicit rather than described as completed.
+The integrated release candidate combines the environment fix, verified evidence documentation and supplemental analyses in one branch. Read `RELEASE_CANDIDATE.md` for the rebuild, CI contract and reviewed prior heads. Earlier PRs remain open, and main is unchanged until integration.
 
-1. Run PostgreSQL integration on a dedicated disposable database: loader DDL/COPY/reconciliation, repeat load, injected rollback and M2 SQL parity. Use DATABASE_URL for loading and FMCG_TEST_DATABASE_URL for integration tests; retain actual load_report.json and completed test logs. Docker/PostgreSQL server is unavailable in the current execution environment.
-2. Review the M4 missing-control calendar limitation and M5 high false positive rate before making portfolio accuracy claims. Author a separately versioned scenario with staggered promotions if a B2 empirical benchmark is desired. A new risk rule with known open-order information needs a reserved, unseen evaluation period; do not tune on the reported 2026 cohort.
-3. For a promotion-adjusted Q4 SI plan, supply a future calendar and a stock/replenishment bridge as detailed in M4_CLOSING_PLAN.md. M3 baseline forecasts are unchanged. No raw planted effects may enter training or planning estimates.
-4. For portfolio publication, provide a concise architecture/demo walkthrough and selected synthetic findings with denominator, coverage and limitation labels. The original spec copies remain in docs/source_specs/. No GitHub repository or remote publication has been created here.
-
-These are review/acceptance and portfolio tasks; local completion is not a production-deployment claim.
-
-Demo entry page and walkthrough are now supplied. Dedicated DB acceptance automation is supplied in scripts/accept_postgres.py; its local attempt is blocked by missing Docker, so step 1 still requires an actual execution environment with Docker and dependencies.
-
-A reproducible release runner and GitHub Actions PostgreSQL acceptance workflow are now prepared. The next external acceptance step remains an actual dedicated-DB/CI execution; neither a prepared workflow nor local helper tests certify SQL parity.
+1. Require this integrated branch's own database-backed CI to pass; prior feature-branch successes do not certify the combination. Inspect candidate status, core tests and retained stage logs.
+2. Review the generated `output/release_candidate.html` entry and all five links in a browser, including narrow windows and Q4 retailer/category/scenario filters. Record commit, browser, date and any actual visual defects using `DEMO_REVIEW.md`.
+3. Review and merge the integrated PR when ready, then resolve overlapping earlier PRs. Keep the existing output evidence before artifact expiry.
+4. Prepare the mentor/interview walkthrough with default results and separately labeled supplemental scenarios. Do not claim stronger risk detection, causal incrementality, forecast accuracy or profitability than the evidence supports.
+5. Further modelling or operational API work needs a specified new scope and evaluation contract. Current analytical orders and authored incremental plans are not submitted orders or an inventory/order application service.

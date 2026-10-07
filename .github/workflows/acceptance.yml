@@ -33,27 +33,10 @@ jobs:
           cache: pip
       - name: Install pinned dependencies
         run: python -m pip install -r requirements.txt
-      - name: Rebuild and require database acceptance
-        run: python scripts/run_release.py
-      - name: Validate supplemental staggered promotion benchmark
-        env:
-          PYTHONPATH: src
-        run: python -m fmcg.promotion_scenario
-      - name: Validate reserved receipt-risk benchmark
-        env:
-          PYTHONPATH: src
-        run: python -m fmcg.receipt_scenario
-      - name: Validate authored Q4 SI planning ledger
-        env:
-          PYTHONPATH: src
-        run: python -m fmcg.q4_plan
-      - name: Test Q4 ledger and commercial review
-        env:
-          PYTHONPATH: src
-        run: |
-          python scripts/test_q4_plan.py -v
-          python scripts/test_q4_cockpit.py -v
-          node scripts/test_q4_filters.js
+      - name: Rebuild integrated candidate with required database acceptance
+        run: python scripts/run_candidate.py
+      - name: Validate generated Q4 browser filter script
+        run: node scripts/test_q4_filters.js
       - name: Retain logs and reports even on failure
         if: always()
         uses: actions/upload-artifact@v4

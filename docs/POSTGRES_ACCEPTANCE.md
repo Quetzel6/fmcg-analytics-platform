@@ -8,7 +8,7 @@ From the extracted project root, with the Python virtual environment activated, 
 python3 scripts/accept_postgres.py
 ```
 
-Docker may download the postgres:16 image on the first run. The Python environment needs `requirements.txt`, including psycopg. The Docker image and PostgreSQL lifecycle have not been exercised in this execution environment because Docker is absent.
+Docker may download the postgres:16 image on the first run. The Python environment needs `requirements.txt`, including psycopg. The owner reported a successful dedicated Mac run on 2026-10-07. The complete GitHub Actions rebuild independently passed real PostgreSQL 16 integration with zero skips. See RELEASE_EVIDENCE.md; the temporary-container runner and CI service use different database lifecycles.
 
 The automation runs the two real integration tests without allowing skipped/incomplete output to count as success: repeated load and rollback after injected failure, then SQL/local M2 view parity. Finally it loads the default dataset and requires a committed load with post-load reconciliation passed. It removes only the container bearing this run's ownership label, including its temporary anonymous data volume. Timeout, interruption and test failures also trigger ownership-checked cleanup; cleanup status is recorded.
 
