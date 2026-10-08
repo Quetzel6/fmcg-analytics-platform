@@ -1,0 +1,9 @@
+# Fixed before generating or inspecting the new evaluation labels.
+[receipt_risk]
+lookback_days = 28
+horizon_days = 7
+receipt_numerator = 4
+receipt_denominator = 5
+evaluation_start = "2027-01-01"
+evaluation_end = "2027-09-23"
+method = "promised_receipt_path_v1"

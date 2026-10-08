@@ -26,6 +26,10 @@ def discount_price(price,discount):
 def dates(start,end):
     for i in range((end-start).days+1): yield start+dt.timedelta(days=i)
 
+def promotion_months(cfg, customer_id, final_year):
+    key = 'months_final_year' if final_year else 'months_full_year'
+    return cfg['promotion'].get('customer_' + key, {}).get(customer_id, cfg['promotion'][key])
+
 def config_read(path):
     cfg=tomllib.loads(path.read_text())
     start=dt.date.fromisoformat(cfg['scenario']['start_date']); end=dt.date.fromisoformat(cfg['scenario']['as_of_date'])
@@ -34,6 +38,16 @@ def config_read(path):
     if len(cfg['customers'])!=3 or len(cfg['products'])!=10 or len(cfg['stores']['regions'])!=5: raise ValueError('Current contract requires 3 customers, 10 products and 5 stores each')
     if len({c['id'] for c in cfg['customers']})!=3 or len({p['id'] for p in cfg['products']})!=10: raise ValueError('Duplicate config IDs')
     if cfg['promotion']['mechanic']!='PRICE_DISCOUNT': raise ValueError('Only PRICE_DISCOUNT has a defined price contract')
+    customer_ids = {c['id'] for c in cfg['customers']}
+    for key in ('months_full_year', 'months_final_year'):
+        overrides = cfg['promotion'].get('customer_' + key, {})
+        if not isinstance(overrides, dict) or set(overrides) - customer_ids:
+            raise ValueError('Promotion calendar override has unknown customer IDs')
+        for months in [cfg['promotion'][key], *overrides.values()]:
+            if not isinstance(months, list) or not months or any(type(m) is not int or not 1 <= m <= 12 for m in months) or months != sorted(set(months)):
+                raise ValueError('Promotion months must be nonempty, sorted, unique integers from 1 to 12')
+    if any(type(c['promo_start_day']) is not int or not 1 <= c['promo_start_day'] <= 28 for c in cfg['customers']):
+        raise ValueError('Promotion start day must be an integer from 1 to 28')
     for cat in cfg['categories']:
         if len(cat['seasonality'])!=12 or min(cat['seasonality'])<=0 or cat['base_rate']<=0: raise ValueError('Invalid category demand')
     if any(p['case_size']<=0 or p['shelf_price_satang']<=0 or p['category'] not in {c['name'] for c in cfg['categories']} for p in cfg['products']): raise ValueError('Invalid product config')
@@ -69,7 +83,7 @@ def generate(config_path,output):
         for pid,p in products.items():
             cat=categories[p['category']]
             for year in range(start.year,end.year+1):
-                months=cfg['promotion']['months_final_year'] if year==end.year else cfg['promotion']['months_full_year']
+                months=promotion_months(cfg,cid,year==end.year)
                 for month in months:
                     first=dt.date(year,month,c['promo_start_day'])
                     length=int(rng.integers(cfg['promotion']['min_days'],cfg['promotion']['max_days']+1)); last=first+dt.timedelta(days=length-1)

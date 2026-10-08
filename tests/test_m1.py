@@ -118,7 +118,7 @@ class ScenarioTests(unittest.TestCase):
         self.assertGreater(order_rate,line_rate)
     def test_analytics_truth_boundary(self):
         # Mandatory guard for later M2-M5 modules. Generator, loader and QA are excluded.
-        for folder in ('analytics','forecast','uplift','risk'):
+        for folder in ('analytics','forecast','uplift','risk','planning'):
             for path in (ROOT/'src/fmcg'/folder).rglob('*'):
                 if path.suffix in ('.py','.sql'):
                     text=path.read_text().lower(); self.assertNotIn('truth',text,str(path))

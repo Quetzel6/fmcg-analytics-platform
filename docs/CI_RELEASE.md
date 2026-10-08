@@ -1,6 +1,6 @@
 # Reproducible rebuild and CI acceptance
 
-The project now supplies a single sequential rebuild command plus a GitHub Actions workflow. The workflow file has been parsed locally but **has not run on GitHub**. No remote repository has been created or pushed.
+The project now supplies a single sequential rebuild command plus a GitHub Actions workflow. The workflow successfully ran on GitHub: [run #1](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/37572311549), 76 core tests passed, zero skipped, and `database_verified=true`. See RELEASE_EVIDENCE.md for the verified commit and artifact retention.
 
 ## Local rebuild
 
@@ -16,9 +16,9 @@ Default mode requires FMCG_TEST_DATABASE_URL for a dedicated disposable database
 
 ## GitHub workflow
 
-When the project contents become the repository root, `.github/workflows/acceptance.yml` runs on push, pull requests or manual dispatch. It uses a temporary PostgreSQL 16 service, Python 3.13 and pinned Python dependencies, then invokes the database-required rebuild command. It retains output logs/reports for 14 days even when a step fails. The explicit CI password is only a disposable test fixture for that job; no real account credentials are required.
+With the project contents at the repository root, `.github/workflows/acceptance.yml` runs on push, pull requests or manual dispatch. It uses a temporary PostgreSQL 16 service, Python 3.13 and pinned Python dependencies, then invokes the database-required rebuild command. It retains output logs/reports for 14 days even when a step fails. The explicit CI password is only a disposable test fixture for that job; no real account credentials are required.
 
-The initial checkout is expected to have no data/ or output/ because these generated folders are ignored. The workflow regenerates all report artifacts **before** running tests that inspect them. The service database is dedicated to the job; no company database or external account is used. Workflow action tags and real GitHub service behaviour remain to be exercised by an actual run.
+The initial checkout is expected to have no data/ or output/ because these generated folders are ignored. The workflow regenerates all report artifacts **before** running tests that inspect them. The service database is dedicated to the job; no company database or external account is used. The verified run exercised checkout, Python setup, the PostgreSQL service, the complete rebuild and output artifact upload.
 
 The core suite includes the real PostgreSQL repeated-load/rollback test and M2 SQL/local parity test. Skipped tests fail database release certification instead of producing a misleading pass. Local orchestration tests additionally cover stage ordering, skip rejection, missing-database blocking, early failure and inherited-credential removal. They are not substitutes for PostgreSQL execution.
 
