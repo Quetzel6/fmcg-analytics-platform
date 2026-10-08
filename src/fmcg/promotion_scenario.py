@@ -94,7 +94,7 @@ def run():
         export(rows, errors, all_validation, output)
         render(output / "promotion.json", ROOT / "dashboard/m4.html", output / "dashboard.html")
         dashboard = output / "dashboard.html"
-        page = dashboard.read_text().replace('../m2/dashboard.html', '../../m2/dashboard.html').replace('../m3/dashboard.html', '../../m3/dashboard.html')
+        page = dashboard.read_text().replace('../m2/dashboard.html', '../../m2/dashboard.html').replace('../m3/dashboard.html', '../../m3/dashboard.html').replace('../m5/dashboard.html', '../../m5/dashboard.html')
         page = page.replace('<h1>Promotion effectiveness · M4</h1>', '<h1>Promotion effectiveness · staggered-v1</h1><p><a href="benchmark.html">Matched B1/B2 benchmark</a></p>')
         dashboard.write_text(page, encoding="utf-8")
         result = benchmark_summary(rows, all_validation, matched_validation)
