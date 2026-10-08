@@ -1,9 +1,19 @@
 # Current next steps
 
-The integrated release candidate combines the environment fix, verified evidence documentation and supplemental analyses in one branch. Read `RELEASE_CANDIDATE.md` for the rebuild, CI contract and reviewed prior heads. Earlier PRs remain open, and main is unchanged until integration.
+PR #7 merged the integrated candidate into main on 2026-10-08. Its pre-merge
+head `3db96f8f4e24121cae797341080fb626c3c078e0` passed database-backed acceptance
+in run 37604798122. This evidence belongs to that head, not later changes.
 
-1. Require this integrated branch's own database-backed CI to pass; prior feature-branch successes do not certify the combination. Inspect candidate status, core tests and retained stage logs.
-2. Review the generated `output/release_candidate.html` entry and all five links in a browser, including narrow windows and Q4 retailer/category/scenario filters. Record commit, browser, date and any actual visual defects using `DEMO_REVIEW.md`.
-3. Review and merge the integrated PR when ready, then resolve overlapping earlier PRs. Keep the existing output evidence before artifact expiry.
-4. Prepare the mentor/interview walkthrough with default results and separately labeled supplemental scenarios. Do not claim stronger risk detection, causal incrementality, forecast accuracy or profitability than the evidence supports.
-5. Further modelling or operational API work needs a specified new scope and evaluation contract. Current analytical orders and authored incremental plans are not submitted orders or an inventory/order application service.
+1. Rebuild main locally and record browser review using `DEMO_REVIEW.md`.
+2. Build the offline review ZIP using `scripts/package_review.py`; follow
+   `MENTOR_REVIEW.md` for the mentor/interview walkthrough. Preserve the run
+   status, repository commit and CI URL alongside the package.
+3. Resolve overlapping older feature PRs after checking their scope; do not
+   merge them blindly over the integrated history.
+4. Operational APIs remain future work. Define inventory/order request contracts,
+   idempotency, validation and persistence before implementing that service.
+   Existing analytical orders and plans are not submitted orders.
+
+Supplemental scenarios retain separate cohorts and assumptions. Do not claim
+causal incrementality, improved recall, forecast accuracy or profitability beyond
+the recorded evidence.

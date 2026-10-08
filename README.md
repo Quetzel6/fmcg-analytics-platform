@@ -11,7 +11,7 @@ python -u scripts/run_candidate.py --local
 open output/release_candidate.html
 ```
 
-Local mode leaves database verification pending. CI uses the same candidate command with a disposable PostgreSQL service and requires default database acceptance. This branch needs its own CI result; previous accepted heads are recorded in [candidate scope and evidence](docs/RELEASE_CANDIDATE.md). Main and earlier PRs are unchanged until integration.
+Local mode leaves database verification pending. CI uses the same candidate command with a disposable PostgreSQL service and requires default database acceptance. This branch needs its own CI result; previous accepted heads are recorded in [candidate scope and evidence](docs/RELEASE_CANDIDATE.md). PR #7 merged this integration into main on 2026-10-08. Earlier feature PRs overlap this integrated history.
 
 M0–M5 synthetic analytics platform with verified PostgreSQL integration. [GitHub Actions acceptance](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/37572311549) passed **76 core tests with zero skips** on 2026-10-07. See [release evidence](docs/RELEASE_EVIDENCE.md) for the verified commit and scope, and `docs/REVIEW_NOTES.md` for specification corrections.
 
@@ -201,7 +201,7 @@ One command regenerates the synthetic scenario, strict DQ, M2–M5 reports/Dashb
 
 ## Supplemental Q4 commercial review
 
-The authored Q4 plan is available on the feature branch. PR #5 acceptance CI passed, including the default PostgreSQL release. The older bundled Docker attempt described above is historical evidence, not the current CI result.
+The authored Q4 plan is included in main. PR #5 acceptance CI passed, including the default PostgreSQL release. The older bundled Docker attempt described above is historical evidence, not the current CI result.
 
 ```bash
 python -u scripts/run_release.py --local
@@ -211,3 +211,12 @@ open output/scenarios/q4-plan-v1/cockpit.html
 ```
 
 Choose scenario, retailer and category to review monthly SI and incremental order dates/quantities. The annual target bridge follows scenario and retailer; no monthly or category targets are invented. Orders and receipts are authored assumptions. See [Q4 ledger assumptions](docs/Q4_PLAN_V1.md) and [commercial review workflow](docs/Q4_COMMERCIAL_REVIEW.md). Outputs include `cockpit.html` and `actions.csv`, with the original ledger evidence retained.
+
+## Offline mentor review package
+
+After a successful candidate rebuild, run `python scripts/package_review.py`.
+Extract `output/mentor_review.zip` and open `output/release_candidate.html`.
+The ZIP includes report pages, JSON/CSV, docs and a SHA-256 inventory; it checks
+local page links and preserves the packaged run's database status. It snapshots
+existing results rather than recertifying their freshness. See
+[mentor walkthrough](docs/MENTOR_REVIEW.md).
