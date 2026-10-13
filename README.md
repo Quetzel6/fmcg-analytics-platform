@@ -1,5 +1,11 @@
 # FMCG Commercial & Supply Chain Analytics Platform
 
+## Portfolio overview
+
+This repository contains the synthetic analytics pipeline and offline dashboards. The separate [FMCG Cloud Foundation](https://github.com/Quetzel6/fmcg-cloud-foundation) deploys a Python API and PostgreSQL on AWS EC2; it does not host these dashboards. See [AWS extension evidence](docs/AWS_CLOUD_EXTENSION.md) for scope and recovery verification.
+
+Latest verified main acceptance: [13 October 2026 run](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/38369940466), commit `d6637751227b10bc55437e7662cf86cc480ddb55`. Historical test counts below retain their original release scope.
+
 ## Integrated candidate quick start
 
 This candidate combines the Mac environment check, default M0–M5 pipeline and supplemental promotion, receipt-risk and Q4 review. From the source root in the working environment:
@@ -11,7 +17,7 @@ python -u scripts/run_candidate.py --local
 open output/release_candidate.html
 ```
 
-Local mode leaves database verification pending. CI uses the same candidate command with a disposable PostgreSQL service and requires default database acceptance. This branch needs its own CI result; previous accepted heads are recorded in [candidate scope and evidence](docs/RELEASE_CANDIDATE.md). PR #7 merged this integration into main on 2026-10-08. Earlier feature PRs overlap this integrated history.
+Local mode leaves database verification pending. CI uses the same candidate command with a disposable PostgreSQL service and requires default database acceptance. Accepted candidate heads are recorded in [candidate scope and evidence](docs/RELEASE_CANDIDATE.md). PR #7 merged this integration into main on 2026-10-08. Earlier feature PRs overlap this integrated history.
 
 M0–M5 synthetic analytics platform with verified PostgreSQL integration. [GitHub Actions acceptance](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/37572311549) passed **76 core tests with zero skips** on 2026-10-07. See [release evidence](docs/RELEASE_EVIDENCE.md) for the verified commit and scope, and `docs/REVIEW_NOTES.md` for specification corrections.
 
