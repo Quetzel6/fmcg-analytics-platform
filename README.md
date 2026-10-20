@@ -115,7 +115,7 @@ cd fmcg-analytics-platform
 # Existing checkout: use git pull --ff-only after committing or stashing local work.
 ```
 
-Generated data/output and `.env` are excluded. The private GitHub repository is active. Pushes and pull requests run the acceptance workflow.
+Generated data/output and `.env` are excluded. The source repository is public. Pushes and pull requests run the acceptance workflow.
 
 ## M2 reports and Dashboard
 
@@ -195,7 +195,7 @@ python3 scripts/accept_postgres.py
 
 This creates a run-owned disposable PostgreSQL container on a random localhost port, requires both integration tests to pass without skips, retains real load/reconciliation evidence and cleans up the temporary container. It does not use your existing database or Compose volume. See `docs/POSTGRES_ACCEPTANCE.md`. The dedicated Mac acceptance passed according to the owner's result, and the complete GitHub CI run independently verified database acceptance. Offline helper tests check orchestration; their mocks are not PostgreSQL verification.
 
-For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`. The source is hosted in the private GitHub repository; the offline demo is not a hosted website.
+For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`. The source is hosted in the public GitHub repository; the offline demo is not a hosted website.
 
 ## Rebuild and CI
 
