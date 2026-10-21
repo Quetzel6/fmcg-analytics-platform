@@ -92,7 +92,7 @@ The detector may use only data on or before day *t*.
 
 ## 6. Rules for citing a KPI
 
-1. A KPI appears in the README or resume only after its milestone is complete and its tests pass.
+1. A KPI is documented as implemented only after its milestone is complete and its tests pass.
 2. Any figure derived from planted effects (uplift, stockout detection) is described as "validated against known synthetic ground truth", never as a business finding.
 3. The README states the data class, the as-of date and the definition link next to every headline number.
 

@@ -6,7 +6,7 @@ in run 37604798122. This evidence belongs to that head, not later changes.
 
 1. Rebuild main locally and record browser review using `DEMO_REVIEW.md`.
 2. Build the offline review ZIP using `scripts/package_review.py`; follow
-   `MENTOR_REVIEW.md` for the mentor/interview walkthrough. Preserve the run
+   `MENTOR_REVIEW.md` for the project walkthrough. Preserve the run
    status, repository commit and CI URL alongside the package.
 3. Resolve overlapping older feature PRs after checking their scope; do not
    merge them blindly over the integrated history.

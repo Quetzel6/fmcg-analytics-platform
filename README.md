@@ -8,10 +8,12 @@ Latest verified main acceptance: [13 October 2026 run](https://github.com/Quetze
 
 ## Integrated candidate quick start
 
-This candidate combines the Mac environment check, default M0–M5 pipeline and supplemental promotion, receipt-risk and Q4 review. From the source root in the working environment:
+This candidate combines the Mac environment check, default M0–M5 pipeline and supplemental promotion, receipt-risk and Q4 review. From a fresh checkout with Python 3.11 or later:
 
 ```bash
-source .venv-py313/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 python scripts/doctor.py
 python -u scripts/run_candidate.py --local
 open output/release_candidate.html
@@ -23,13 +25,13 @@ M0–M5 synthetic analytics platform with verified PostgreSQL integration. [GitH
 
 **100% synthetic, config-authored scenario.** No real company, retailer, brand, transaction or company price file is used. As-of **2026-09-30**. This project validates engineering/analysis methods on simulated data; its figures are not business findings.
 
-## What changed from the earlier ZIP
+## Data contract
 
 The monthly SQLite demo and its independently generated supply facts are replaced by a single daily simulation. Delivered order quantities become inventory receipts; consumer SO quantities become ledger sold quantities. SI is delivered quantity × invoice price on delivery date. All prices and raw amounts are integer satang. The earlier HTML dashboard is replaced with a new M2 dashboard built against this daily contract.
 
 ## Run on Mac
 
-Use Python **3.11 or later** (the existing Python 3.13 installation is sufficient for the language requirements). Extract the ZIP, open Terminal in `fmcg-platform`, then:
+Use Python **3.11 or later** (the existing Python 3.13 installation is sufficient for the language requirements). Open Terminal in the cloned repository, then:
 
 ```bash
 python3 --version
@@ -70,7 +72,7 @@ Manifest includes config and generator hashes, seed, PCG64, NumPy version, each 
 
 ## PostgreSQL setup and loading
 
-Requires working Docker Compose on the user's machine:
+Requires working Docker Compose on the local machine:
 
 ```bash
 cp .env.example .env
@@ -82,7 +84,7 @@ docker compose up -d --wait
 python3 -m fmcg.load
 ```
 
-Use a dedicated local project database. The loader replaces **both `fmcg` and `truth` schemas**, including their objects/grants, in a single transaction. It acquires a transaction advisory lock, validates CSVs before connecting, COPY-loads every table, then checks row counts, NUMERIC amount totals and cross-table ledger reconciliations before committing. Any exception before commit rolls back schema replacement and inserted rows. `output/load_report.json` is produced only by running the loader; this ZIP does not invent a successful database report.
+Use a dedicated local project database. The loader replaces **both `fmcg` and `truth` schemas**, including their objects/grants, in a single transaction. It acquires a transaction advisory lock, validates CSVs before connecting, COPY-loads every table, then checks row counts, NUMERIC amount totals and cross-table ledger reconciliations before committing. Any exception before commit rolls back schema replacement and inserted rows. `output/load_report.json` is produced only by running the loader; no successful database report is assumed without running acceptance.
 
 The observed date dimension ends at as-of. Future promises and 2026 Q4 target months are allowed planning dates, not future actuals. Credentials stay in `.env`/environment and are excluded from Git.
 
@@ -101,7 +103,7 @@ The integration test runs a repeated load and injects a failure after insertions
 
 `config/scenario.toml` → one PCG64 simulation → `data/warehouse/*.csv` + isolated `data/truth/*.csv` → manifest/DQ gate → PostgreSQL transaction and reconciliation.
 
-Source: `src/fmcg/generate.py`, `validate.py`, `load.py`, `contracts.py`; schema: `sql/schema.sql`; tests: `tests/test_m1.py`. Original user drafts are preserved under `docs/source_specs/`; reviewed working copies and decisions live in `docs/`.
+Source: `src/fmcg/generate.py`, `validate.py`, `load.py`, `contracts.py`; schema: `sql/schema.sql`; tests: `tests/test_m1.py`. Original specification drafts are preserved under `docs/source_specs/`; reviewed working copies and decisions live in `docs/`.
 
 M2 now exports commercial/service KPIs and a new offline dashboard. PostgreSQL views and their local-output parity passed the integration acceptance suite for the verified commit. M3 now evaluates seasonal naive and alternative baselines at **2025-09-30 → Q4 2025** and **2026-06-30 → Q3 2026**, each 36 customer-category-month points, and produces Q4 2026 SI forecasts and full-year outlook. M4 now exports observed promotion estimators with isolated planted-effect validation; M5 now exports fixed inventory/risk rules and validation. See `docs/IMPLEMENTATION_STATUS.md`.
 
@@ -181,7 +183,7 @@ The daily risk CSV contains the full 150,600-day panel; Dashboard JSON contains 
 
 ## Open the combined demo and close DB acceptance
 
-Open `output/index.html` after extracting the ZIP to enter the M2–M5 dashboards. Rebuild this entry page after reports change:
+Open `output/index.html` after generating the reports to enter the M2–M5 dashboards. Rebuild this entry page after reports change:
 
 ```bash
 python3 scripts/build_demo.py
@@ -195,7 +197,7 @@ python3 scripts/accept_postgres.py
 
 This creates a run-owned disposable PostgreSQL container on a random localhost port, requires both integration tests to pass without skips, retains real load/reconciliation evidence and cleans up the temporary container. It does not use your existing database or Compose volume. See `docs/POSTGRES_ACCEPTANCE.md`. The dedicated Mac acceptance passed according to the owner's result, and the complete GitHub CI run independently verified database acceptance. Offline helper tests check orchestration; their mocks are not PostgreSQL verification.
 
-For a 5–7 minute mentor/interview walkthrough, see `docs/DEMO_WALKTHROUGH.md`. The source is hosted in the public GitHub repository; the offline demo is not a hosted website.
+For a 5–7 minute project walkthrough, see `docs/DEMO_WALKTHROUGH.md`. The source is hosted in the public GitHub repository; the offline demo is not a hosted website.
 
 ## Rebuild and CI
 
@@ -218,11 +220,11 @@ open output/scenarios/q4-plan-v1/cockpit.html
 
 Choose scenario, retailer and category to review monthly SI and incremental order dates/quantities. The annual target bridge follows scenario and retailer; no monthly or category targets are invented. Orders and receipts are authored assumptions. See [Q4 ledger assumptions](docs/Q4_PLAN_V1.md) and [commercial review workflow](docs/Q4_COMMERCIAL_REVIEW.md). Outputs include `cockpit.html` and `actions.csv`, with the original ledger evidence retained.
 
-## Offline mentor review package
+## Offline review package
 
 After a successful candidate rebuild, run `python scripts/package_review.py`.
 Extract `output/mentor_review.zip` and open `output/release_candidate.html`.
 The ZIP includes report pages, JSON/CSV, docs and a SHA-256 inventory; it checks
 local page links and preserves the packaged run's database status. It snapshots
 existing results rather than recertifying their freshness. See
-[mentor walkthrough](docs/MENTOR_REVIEW.md).
+[review walkthrough](docs/MENTOR_REVIEW.md).
