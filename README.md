@@ -4,7 +4,7 @@
 
 This repository contains the synthetic analytics pipeline and offline dashboards. The separate [FMCG Cloud Foundation](https://github.com/Quetzel6/fmcg-cloud-foundation) deploys a Python API and PostgreSQL on AWS EC2; it does not host these dashboards. See [AWS extension evidence](docs/AWS_CLOUD_EXTENSION.md) for scope and recovery verification.
 
-Latest verified main acceptance: [13 October 2026 run](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/38369940466), commit `d6637751227b10bc55437e7662cf86cc480ddb55`. Historical test counts below retain their original release scope.
+Latest verified main acceptance: [21 October 2026 run](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/39544846749), commit `2b6b5b2afdaf95fc1bd11d5698d924b23db7ecd1`. Historical test counts below retain their original release scope.
 
 ## Integrated candidate quick start
 
