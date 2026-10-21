@@ -23,7 +23,7 @@ Dump SHA-256: `bfafdb4feb78d61814b33727bf1020e1a3b4a0f613cb1283e8c623bef33f159e`
 
 Restore comparison covers sales aggregates, not every row/table. The dump used no-owner/no-acl and does not establish restored roles or permissions. Access checks after recovery used the active original database. No RTO/RPO or performance benchmark was measured.
 
-## Limits and interview wording
+## Scope and evidence
 
 The cloud extension does not deploy the analytics dashboard or establish production readiness. No public HTTPS endpoint, high availability, managed secrets, automated infrastructure, centralized alerts or executed cloud CI evidence is claimed. The single-host API/database architecture shares a failure domain. The loader retains an elevated lab owner identity. Compose requires a token, while standalone local operation without the token environment variable can bypass auth.
 
