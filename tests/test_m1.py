@@ -66,6 +66,14 @@ class ScenarioTests(unittest.TestCase):
         self.mutate('fact_sales_daily',lambda rows:rows[0].update(store_id='UNKNOWN')); self.assert_dq('DQ-02')
     def test_dq03_negative_quantity(self):
         self.mutate('fact_sales_daily',lambda rows:rows[0].update(quantity='-1')); self.assert_dq('DQ-03')
+    def test_dq03_zero_case_size_reports_failure_without_crashing(self):
+        self.mutate('dim_product',lambda rows:rows[0].update(case_size='0'))
+        report=self.assert_dq('DQ-03'); self.assertEqual(report['status'],'failed')
+    def test_dq03_zero_moq_and_store_factor(self):
+        self.mutate('dim_product',lambda rows:rows[0].update(moq_cases='0'))
+        self.mutate('dim_store',lambda rows:rows[0].update(size_factor='0'))
+        report=self.assert_dq('DQ-03')
+        self.assertGreaterEqual(next(r['count'] for r in report['rules'] if r['id']=='DQ-03'),2)
     def test_dq04_future_observed_actual(self):
         self.mutate('fact_sales_daily',lambda rows:rows[0].update(date='2026-10-01')); self.assert_dq('DQ-04')
     def test_dq05_missing_panel_row(self):
@@ -99,6 +107,11 @@ class ScenarioTests(unittest.TestCase):
     def test_dq16_manifest_counts_checksums_totals(self):
         manifest=json.loads(self.manifest_bytes); manifest['files']['fact_sales_daily']['rows']+=1; manifest['files']['fact_sales_daily']['sha256']='tampered'; manifest['amount_totals_satang']['fact_sales_daily']+=1
         (self.data/'manifest.json').write_text(json.dumps(manifest)); report=self.assert_dq('DQ-16'); rule=next(r for r in report['rules'] if r['id']=='DQ-16'); self.assertGreaterEqual(rule['count'],3)
+    def test_dq16_invalid_manifest_shapes_fail_closed(self):
+        for malformed in ([], dict(files=[],amount_totals_satang=[]), dict(files={'dim_product':None})):
+            with self.subTest(manifest=malformed):
+                (self.data/'manifest.json').write_text(json.dumps(malformed))
+                report=self.assert_dq('DQ-16'); self.assertEqual(report['status'],'failed')
     def test_dq17_warn_in_loader_error_in_tests(self):
         config=self.root/'impossible.toml'; config.write_text(self.config.read_text().replace('stockout_max = 0.08','stockout_max = 0.00001'))
         manifest=json.loads(self.manifest_bytes); manifest['config_sha256']=sha256(config); (self.data/'manifest.json').write_text(json.dumps(manifest))

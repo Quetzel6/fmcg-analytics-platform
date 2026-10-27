@@ -37,8 +37,15 @@ jobs:
         run: python scripts/run_candidate.py
       - name: Validate generated Q4 browser filter script
         run: node scripts/test_q4_filters.js
+      - name: Validate default dashboard rendering and retailer filters
+        run: node scripts/check_dashboards.cjs
       - name: Package offline mentor review with link validation
         run: python scripts/package_review.py
+      - name: Verify synthetic correction and recovery against PostgreSQL
+        env:
+          FMCG_CASE_ADMIN_URL: ${{ env.FMCG_TEST_DATABASE_URL }}
+          PYTHONPATH: src
+        run: python -m unittest discover -s scripts -p "test_case_study.py" -v
       - name: Retain logs and reports even on failure
         if: always()
         uses: actions/upload-artifact@v4

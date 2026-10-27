@@ -6,6 +6,10 @@ This repository contains the synthetic analytics pipeline and offline dashboards
 
 Latest verified main acceptance: [21 October 2026 run](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/39544846749), commit `2b6b5b2afdaf95fc1bd11d5698d924b23db7ecd1`. Historical test counts below retain their original release scope.
 
+## Synthetic sales correction and recovery case study
+
+[Stakeholder brief and runnable walkthrough](docs/RELIABILITY_CASE_STUDY.md) traces an authored invoice-price correction through the existing DQ gate, PostgreSQL snapshot loader, rollback/recovery and M2 report. It records before/after KPI values and proves a repeated load does not duplicate sales. Run-specific evidence is separate from historical candidate acceptance.
+
 ## Integrated candidate quick start
 
 This candidate combines the Mac environment check, default M0–M5 pipeline and supplemental promotion, receipt-risk and Q4 review. From a fresh checkout with Python 3.11 or later:
@@ -225,6 +229,5 @@ Choose scenario, retailer and category to review monthly SI and incremental orde
 After a successful candidate rebuild, run `python scripts/package_review.py`.
 Extract `output/mentor_review.zip` and open `output/release_candidate.html`.
 The ZIP includes report pages, JSON/CSV, docs and a SHA-256 inventory; it checks
-local page links and preserves the packaged run's database status. It snapshots
-existing results rather than recertifying their freshness. See
+local page links and preserves the packaged run's database status. It verifies that build inputs and review artifacts match the candidate hashes before packaging; changed files require a rebuild. Packaging does not rerun tests. See
 [review walkthrough](docs/MENTOR_REVIEW.md).
