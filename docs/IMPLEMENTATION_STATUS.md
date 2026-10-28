@@ -1,6 +1,6 @@
 # Implementation status
 
-Current engineering acceptance: [GitHub Actions run #1](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/37572311549), **76 core passes / 0 skips**, with `database_verified=true`. Scope and commit: [RELEASE_EVIDENCE.md](RELEASE_EVIDENCE.md).
+Historical engineering acceptance: [GitHub Actions run #1](https://github.com/Quetzel6/fmcg-analytics-platform/actions/runs/37572311549), **76 core passes / 0 skips**, with `database_verified=true`. Scope and commit: [RELEASE_EVIDENCE.md](RELEASE_EVIDENCE.md).
 
 | Work | Status |
 | --- | --- |
@@ -19,7 +19,7 @@ Current engineering acceptance: [GitHub Actions run #1](https://github.com/Quetz
 | Inventory/order application API | Not implemented; current order/inventory facts are simulated analytical inputs |
 | Public hosted website / production deployment | Not implemented |
 
-Earlier results of 24/34/47/59/74 local passes belonged to successive milestones and excluded available database tests. The latest verified core result is 76/76; future runs must be assessed from their own logs and source fingerprints.
+Earlier results of 24/34/47/59/74 local passes belonged to successive milestones and excluded available database tests. That historical core result is 76/76; later runs and added tests must be assessed from their own logs and source fingerprints. See REPOSITORY_AUDIT.md for the cloud review scope.
 
 Local `--local` rebuilds still report `passed_local_database_pending` because they deliberately do not connect to PostgreSQL. That describes the individual local run, not a reversal of the verified CI result.
 

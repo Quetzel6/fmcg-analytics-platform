@@ -60,5 +60,16 @@ class CandidateTests(unittest.TestCase):
             root=Path(tmp); result=execute(False,root,self.runner(root,local=False))
             self.assertEqual(result['status'],'passed'); self.assertTrue(result['database_verified'])
 
+    def test_build_input_change_during_run_removes_success_page(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); runner=self.runner(root)
+            def changing_runner(args, **kwargs):
+                (root/'requirements.txt').write_text('changed while building')
+                return runner(args, **kwargs)
+            result=execute(True,root,changing_runner)
+            self.assertEqual(result['status'],'failed')
+            self.assertIn('inputs changed',result['reason'])
+            self.assertFalse((root/'output/release_candidate.html').exists())
+
 
 if __name__ == '__main__': unittest.main()

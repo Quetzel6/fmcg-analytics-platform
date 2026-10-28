@@ -8,6 +8,7 @@ from urllib.parse import urlsplit, unquote
 from pathlib import Path
 import tempfile
 import zipfile
+from evidence import verify
 
 ROOT = Path(__file__).resolve().parents[1]
 STAGES = ['default_release', 'promotion_scenario', 'receipt_scenario', 'q4_plan']
@@ -47,6 +48,7 @@ def build(root=ROOT):
         raise ValueError('Rebuild a successful candidate before packaging')
     if status.get('database_verified') is not (mode == 'passed'):
         raise ValueError('Inconsistent database certification')
+    verify(root, status.get('provenance'))
     stages = status.get('stages', [])
     if [s.get('name') for s in stages] != STAGES or any(
             s.get('status') != 'passed' or s.get('returncode') != 0 for s in stages):
@@ -82,7 +84,7 @@ def build(root=ROOT):
         'Read docs/MENTOR_REVIEW.md for the walkthrough.\n'
         'Candidate status: ' + mode + '\n'
         'Database verified in this packaged run: ' + str(status['database_verified']) + '\n'
-        'This archive snapshots existing outputs; it does not rerun or certify them.\n'
+        'Source and artifact hashes match the completed candidate; packaging does not rerun tests.\n'
         'Source code, environments, raw warehouse/truth data and process logs are excluded.\n'
     ).encode()
     target = output / 'mentor_review.zip'

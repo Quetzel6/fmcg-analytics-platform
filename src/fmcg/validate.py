@@ -53,11 +53,21 @@ def validate(root,config_path,strict_sanity=False):
     cfg,start,end=config_read(config_path); f=Findings(); tables=read_dataset(root,f)
     try: manifest=json.loads((root/'manifest.json').read_text())
     except (OSError,ValueError): manifest={}; f.add('DQ-16','Manifest missing or unreadable')
+    if not isinstance(manifest,dict):
+        manifest={}; f.add('DQ-16','Manifest must be a JSON object')
+    files=manifest.get('files',{})
+    if not isinstance(files,dict):
+        files={}; f.add('DQ-16','Manifest files must be an object')
+    amounts=manifest.get('amount_totals_satang',{})
+    if not isinstance(amounts,dict):
+        amounts={}; f.add('DQ-16','Manifest amount totals must be an object')
     if manifest.get('generator_sha256')!=sha256(ROOT/'src/fmcg/generate.py'): f.add('DQ-16','Generator code hash mismatch')
     if manifest.get('config_sha256')!=sha256(config_path): f.add('DQ-16','Config hash mismatch')
     if manifest.get('seed')!=cfg['scenario']['seed'] or manifest.get('as_of_date')!=end.isoformat() or manifest.get('start_date')!=start.isoformat() or manifest.get('numpy_version')!=cfg['scenario']['required_numpy_version']: f.add('DQ-16','Manifest scenario metadata mismatch')
     for table in COLUMNS:
-        entry=manifest.get('files',{}).get(table,{})
+        entry=files.get(table,{})
+        if not isinstance(entry,dict):
+            entry={}; f.add('DQ-16',f'{table}: manifest entry must be an object')
         if entry.get('rows')!=len(tables[table]): f.add('DQ-16',f'{table}: manifest count mismatch')
         path=csv_path(root,table)
         if path.exists() and entry.get('sha256')!=sha256(path): f.add('DQ-16',f'{table}: checksum mismatch')
@@ -66,6 +76,10 @@ def validate(root,config_path,strict_sanity=False):
     customers={r['customer_id']:r for r in tables['dim_customer']}; products={r['product_id']:r for r in tables['dim_product']}; stores={r['store_id']:r for r in tables['dim_store']}; calendar={r['date_key']:r for r in tables['dim_date']}; categories={r['category'] for r in products.values()}
     for r in stores.values():
         if r['customer_id'] not in customers: f.add('DQ-02',f'Store customer: {r["store_id"]}')
+        if r['size_factor']<=0: f.add('DQ-03',f'Store size factor must be positive: {r["store_id"]}')
+    for r in products.values():
+        if r['case_size']<=0 or r['moq_cases']<=0:
+            f.add('DQ-03',f'Product case size and MOQ must be positive: {r["product_id"]}')
     for table in COLUMNS:
         for r in tables[table]:
             for field,pool in [('store_id',stores),('product_id',products),('customer_id',customers)]:
@@ -117,7 +131,8 @@ def validate(root,config_path,strict_sanity=False):
         key=r['order_id'],r['product_id']
         if key in order_skus: f.add('DQ-12','Duplicate SKU in order')
         order_skus.add(key)
-        if ordered<=0 or ordered%products[r['product_id']]['case_size'] or qty>ordered or r['order_date']>r['promised_date'] or (delivered is None)!=(qty==0) or (delivered is not None and not r['order_date']<=delivered<=end): f.add('DQ-12',f'Order invalid {r["order_id"]}/{r["line_id"]}')
+        case_size=products[r['product_id']]['case_size']
+        if ordered<=0 or case_size<=0 or ordered%case_size or qty>ordered or r['order_date']>r['promised_date'] or (delivered is None)!=(qty==0) or (delivered is not None and not r['order_date']<=delivered<=end): f.add('DQ-12',f'Order invalid {r["order_id"]}/{r["line_id"]}')
         if r['amount_satang']!=qty*r['unit_price_satang']: f.add('DQ-06','Order amount identity')
         price=price_lookup.get((delivered or r['order_date'],r['product_id']))
         if price and r['unit_price_satang']!=price['invoice_price_satang']: f.add('DQ-07','Order invoice price mismatch')
@@ -143,7 +158,7 @@ def validate(root,config_path,strict_sanity=False):
     target_actual={(r['month_start'],r['customer_id'],r['category']) for r in tables['fact_target_monthly']}
     if target_actual!=target_expected: f.add('DQ-15','Target month/customer/category coverage mismatch')
     for table in ('fact_sales_daily','fact_order_line'):
-        if sum(r['amount_satang'] for r in tables[table])!=manifest.get('amount_totals_satang',{}).get(table): f.add('DQ-16',f'{table}: amount total differs from manifest')
+        if sum(r['amount_satang'] for r in tables[table])!=amounts.get(table): f.add('DQ-16',f'{table}: amount total differs from manifest')
     metrics=scenario_metrics(tables,end,products)
     severity='ERROR' if strict_sanity else 'WARN'; bounds=cfg['sanity']
     if not bounds['stockout_min']<=metrics['true_stockout_day_rate']<=bounds['stockout_max']: f.add('DQ-17','True stockout rate outside bounds',severity)
@@ -157,7 +172,7 @@ def validate(root,config_path,strict_sanity=False):
     return f.report(metrics),tables
 
 def scenario_metrics(tables,as_of,products):
-    # QA measurements, not published business KPIs (M2/M5 are not implemented).
+    # QA measurements; published business KPIs are calculated in M2/M5 modules.
     demand=tables['truth_demand_daily']; due=[r for r in tables['fact_order_line'] if r['promised_date']<=as_of]
     otif=sum(r['delivered_date'] is not None and r['delivered_date']<=r['promised_date'] and r['delivered_qty']==r['ordered_qty'] for r in due)
     return dict(true_stockout_day_rate=sum(r['lost_qty']>0 for r in demand)/len(demand) if demand else 0,line_otif_rate=otif/len(due) if due else 0,disruption_events=len(tables['truth_supply_disruption']),promotion_count=len(tables['dim_promotion']),stockout_categories=sorted({products[r['product_id']]['category'] for r in demand if r['lost_qty']>0}))

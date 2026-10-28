@@ -5,8 +5,12 @@
 Run `python scripts/doctor.py`, then `python -u scripts/run_candidate.py --local`.
 After success, run `python scripts/package_review.py` to create `output/mentor_review.zip`.
 Extract the ZIP before opening `output/release_candidate.html`. Read `review_manifest.json`
-for the exact candidate status and SHA-256/size inventory. The package snapshots outputs;
-it does not establish that source code or output files have not changed since the build.
+for the exact candidate status and SHA-256/size inventory. Candidate provenance records
+the build inputs (source, tests, scripts, configuration, templates, docs and dependency
+declarations) and report artifacts. Packaging rejects missing provenance or changed inputs
+or artifacts: rebuild the candidate after any such change. These hashes detect changes;
+they are not a signed attestation or independent proof that the analytical methods are valid.
+Packaging does not rerun tests or recertify application behavior.
 Local database verification remains pending even when a separate CI run passed.
 
 The ZIP contains offline HTML, report JSON/CSV, Markdown documentation and selected
